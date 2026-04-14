@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chase Auth Demo</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/@glideidentity/glide-fe-sdk-web/dist/browser/web-client-sdk.min.js"></script>
+  <style>
+    /* Additional UI for input form */
+    .input-group {
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #8b949e;
+      margin-bottom: 8px;
+    }
+
+    .input-group input[type="tel"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid #d0d7de;
+      color: #211e1e;
+      font-size: 1rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      background: #117aca;
+      color: #ffffff;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn:disabled {
+      background: #e1e4e8;
+      color: #8b949e;
+      cursor: not-allowed;
+    }
+
+    .toggle-wrap {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #8b949e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    #loadingState {
+      display: none;
+      margin-top: 24px;
+    }
+
+    #formState {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+
+    <div class="icon-wrap">
+      <div class="ring"></div>
+      <img
+        src="data:image/jpeg;base64,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+85xt6irkRBrcAwOHDoG01MzIxnpLnHhc53G48qi+snQF+OPgeyobB1u2ZpDmF+bdCw8Tha2T8VOkQUnvGzeEGdCfnTeNm8IM6E/OrsRBSe8bN4QZ0J+dSjQDV7U4LUOk69ZLFK3LJEI3NzEfyuBzmxBvxcBViIg4C5REEd0r0YjxCPiZK3+ST/a63C34qn8QoZKaR0Mrcjm8I5RxEHjB5V6BIWpxvR+CvyidmbJfK5pyuF+EXHFzK7wvGTj0t1hQ4vgo1616Soxdo+EeMfmrc3vqHuH9I74rlugNE0giNxsQbF7rG3Kr1v5PKY5cpUa/wAbpE94RfE9H5MRxaVjexY3ct0k7kbm3YPtFWPhuHx0sTYYmhrWjYB+JJ4yeVZEcQG0AC5uec2tcr6WWVrvbSIrPaGrjw9c5m3mRERcVgREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAXFlyiBZERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREH/2Q=="
+        alt="Chase Logo" class="chase-logo" />
+    </div>
+
+    <!-- ID extracted from URL by JS below -->
+    <div class="badge" id="sessionBadge">Session &hellip;</div>
+    <div class="headline">Chase Security</div>
+
+    <!-- User Input Form -->
+    <div id="formState">
+      <div class="sub">Enter your carrier-connected phone number.</div>
+      <div class="input-group">
+        <label>Phone Number</label>
+        <input type="tel" id="phoneInput" placeholder="+1 555 123 4567" value="+15551234567" />
+      </div>
+      <button class="btn" id="verifyBtn" onclick="startVerification()">Verify Identity</button>
+
+      <div class="toggle-wrap">
+        <input type="checkbox" id="simulatorToggle" checked />
+        <label for="simulatorToggle">Simulator Mode (No Glide Credentials)</label>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState">
+      <div class="sub" id="subStatus">Confirming your identity over the cellular network...</div>
+
+      <div class="track">
+        <div class="fill" id="bar"></div>
+      </div>
+      <ul class="steps">
+        <li id="s1" class="active"><span class="dot"></span>Authenticating device</li>
+        <li id="s2"><span class="dot"></span>Checking identity records</li>
+        <li id="s3"><span class="dot"></span>Confirming session</li>
+      </ul>
+
+      <div class="fallback" id="fallback">
+        Didn&rsquo;t return to the app automatically?
+        <a href="#" id="fallbackLink">Tap here to continue &rarr;</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const ATTEMPT_ID = params.get('attemptId');
+    const DEEP_LINK = `tier1bank://verify?attemptId=${encodeURIComponent(ATTEMPT_ID)}`;
+
+    // Populate the UI
+    document.getElementById('sessionBadge').innerHTML = `Session ${ATTEMPT_ID.slice(0, 8)}&hellip;`;
+    document.getElementById('fallbackLink').href = DEEP_LINK;
+
+    const step = n => [1, 2, 3].forEach(i =>
+      document.getElementById('s' + i).className = i < n ? 'done' : i === n ? 'active' : '');
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+
+    // Common deep-link finish flow
+    async function finishFlowSuccess() {
+      // Mark success on our local server wrapper
+      fetch('/verify/' + ATTEMPT_ID + '/complete', { method: 'POST' }).catch(() => { });
+
+      step(3);
+      document.getElementById('bar').style.width = '100%';
+      document.getElementById('subStatus').textContent = 'Verification complete! Returning to app\u2026';
+
+      await delay(900);
+      window.location.href = DEEP_LINK;
+      setTimeout(() => { document.getElementById('fallback').style.display = 'block'; }, 2000);
+    }
+
+    async function startVerification() {
+      const isSimulator = document.getElementById('simulatorToggle').checked;
+      const phone = document.getElementById('phoneInput').value;
+      const btn = document.getElementById('verifyBtn');
+
+      if (!phone) return alert("Please enter a phone number");
+
+      // Swap UI
+      document.getElementById('formState').style.display = 'none';
+      document.getElementById('loadingState').style.display = 'block';
+      requestAnimationFrame(() => { document.getElementById('bar').style.width = '50%'; });
+
+      if (isSimulator) {
+        // --- SIMULATOR STUB FLOW ---
+        await delay(1200);
+        step(2);
+        await delay(1200);
+        await finishFlowSuccess();
+      } else {
+        // --- REAL GLIDE FLOW ---
+        try {
+          const { PhoneAuthClient, USE_CASE } = window.GlideWebClientSDK;
+          const glideClient = new PhoneAuthClient({
+            endpoints: {
+              prepare: '/api/phone-auth/prepare',
+              reportInvocation: '/api/phone-auth/report-invocation',
+              process: '/api/phone-auth/process'
+            }
+          });
+
+          step(2);
+          document.getElementById('bar').style.width = '80%';
+
+          const result = await glideClient.authenticate({
+            use_case: USE_CASE.VERIFY_PHONE_NUMBER,
+            phone_number: phone
+          });
+
+          if (result.verified) {
+            await finishFlowSuccess();
+          } else {
+            throw new Error("Glide Verification Failed");
+          }
+        } catch (error) {
+          document.getElementById('subStatus').textContent = '❌ ' + (error.message || 'Error occurred during Glide auth');
+          document.getElementById('subStatus').style.color = '#f85149';
+          document.getElementById('bar').style.background = '#f85149';
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>

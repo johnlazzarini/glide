@@ -1,0 +1,92 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #ffffff;
+  color: #211E1E;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.card {
+  background: #ffffff;
+  border: 1px solid #e1e4e8;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  border-radius: 20px;
+  padding: 48px 32px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Shield icon */
+.icon-wrap {
+  width: 80px; height: 80px;
+  margin: 0 auto 28px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.shield { 
+  width: 64px; height: 64px; 
+  animation: pulse 1.8s ease-in-out infinite; 
+}
+.chase-logo {
+  width: 64px; height: 64px;
+  object-fit: contain;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.7; transform:scale(.93); }
+}
+.ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #117ACA;
+  animation: spin 1.1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Text */
+.headline { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; color: #211E1E; }
+.sub      { font-size: .875rem; color: #57606a; line-height: 1.6; margin-bottom: 32px; }
+
+/* Progress bar */
+.track { background: #e1e4e8; border-radius: 99px; height: 4px; overflow: hidden; margin-bottom: 28px; }
+.fill  {
+  height: 100%; width: 0%;
+  background: #117ACA;
+  border-radius: 99px;
+  transition: width 2s cubic-bezier(.4,0,.2,1);
+}
+
+/* Steps */
+.steps { list-style: none; text-align: left; margin-bottom: 16px; }
+.steps li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: .825rem; color: #57606a; padding: 5px 0;
+  transition: color .4s;
+}
+.steps li.done   { color: #117ACA; font-weight: 500; }
+.dot { width:8px; height:8px; border-radius:50%; background:#d0d7de; flex-shrink:0; transition:background .4s; }
+.steps li.done   .dot { background:#117ACA; }
+.steps li.active .dot {
+  background:#117ACA;
+  box-shadow: 0 0 0 3px rgba(17, 122, 202, 0.25);
+  animation: blink .9s ease-in-out infinite alternate;
+}
+@keyframes blink { from{opacity:1} to{opacity:.35} }
+
+/* Fallback */
+.fallback { display:none; margin-top:20px; font-size:.8rem; color:#57606a; }
+.fallback a { color:#117ACA; text-decoration:none; font-weight: 500; }
+.fallback a:hover { text-decoration:underline; }
+
+/* Badge */
+.badge {
+  display:inline-block; background:#f4f5f7; border:1px solid #e1e4e8;
+  border-radius:20px; padding:3px 12px; font-size:.7rem;
+  color:#57606a; font-family:monospace; margin-bottom:20px;
+}

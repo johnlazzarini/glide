@@ -1,0 +1,101 @@
+package com.johnny.tier1bankdemo.features.recovery
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.johnny.tier1bankdemo.core.navigation.AppRoutes
+
+@Composable
+fun PasswordResetScreen(
+    navController: NavHostController,
+    viewModel: PasswordResetViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // After a successful reset, clear the entire back stack and return to Login
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navController.navigate(AppRoutes.LOGIN) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 28.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Reset Password",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = "Your identity has been verified. Choose a new password.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(Modifier.height(40.dp))
+
+        OutlinedTextField(
+            value = uiState.newPassword,
+            onValueChange = { viewModel.onAction(PasswordResetAction.OnNewPasswordChanged(it)) },
+            label = { Text("New Password") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = uiState.confirmPassword,
+            onValueChange = { viewModel.onAction(PasswordResetAction.OnConfirmPasswordChanged(it)) },
+            label = { Text("Confirm Password") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        uiState.errorMessage?.let { error ->
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        Spacer(Modifier.height(28.dp))
+
+        Button(
+            onClick = { viewModel.onAction(PasswordResetAction.OnSubmitClicked) },
+            enabled = !uiState.isLoading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+        ) {
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(22.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text("Set New Password")
+            }
+        }
+    }
+}

@@ -1,0 +1,18 @@
+# Android Build
+*.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+
+# Node Backend
+backend/node_modules/
+backend/.env
