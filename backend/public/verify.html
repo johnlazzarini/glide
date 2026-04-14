@@ -94,14 +94,10 @@
       <div class="sub">Enter your carrier-connected phone number.</div>
       <div class="input-group">
         <label>Phone Number</label>
-        <input type="tel" id="phoneInput" placeholder="+1 555 123 4567" value="+15551234567" />
+        <button class="btn" type="button" id="discoverBtn" onclick="discoverPhone()" style="margin-bottom: 12px; background: #e1e4e8; color: #211e1e; font-weight: 600;">Auto-Discover from Network</button>
+        <input type="tel" id="phoneInput" placeholder="+1 555 123 4567" value="+1 (650) 793-0906" />
       </div>
       <button class="btn" id="verifyBtn" onclick="startVerification()">Verify Identity</button>
-
-      <div class="toggle-wrap">
-        <input type="checkbox" id="simulatorToggle" checked />
-        <label for="simulatorToggle">Simulator Mode (No Glide Credentials)</label>
-      </div>
     </div>
 
     <!-- Loading State -->
@@ -152,9 +148,53 @@
       setTimeout(() => { document.getElementById('fallback').style.display = 'block'; }, 2000);
     }
 
+    async function discoverPhone() {
+      try {
+        const btn = document.getElementById('discoverBtn');
+        btn.textContent = 'Discovering...';
+        btn.disabled = true;
+
+        const PLMN = params.get('plmn');
+        if (!PLMN) {
+          throw new Error("No PLMN was supplied via URL. Native Telephony extraction might have failed or phone is locked to WiFi-only.");
+        }
+
+        const { PhoneAuthClient } = window.GlideWebClientSDK;
+        const glideClient = new PhoneAuthClient({
+          endpoints: {
+            prepare: '/api/phone-auth/prepare',
+            reportInvocation: '/api/phone-auth/report-invocation',
+            process: '/api/phone-auth/process'
+          }
+        });
+
+        // Experimental GetPhoneNumber hook passing nested PLMN object
+        const result = await glideClient.authenticate({
+          use_case: 'GetPhoneNumber',
+          plmn: {
+            mcc: PLMN.substring(0, 3),
+            mnc: PLMN.substring(3)
+          }
+        });
+
+        if (result.phone_number) {
+          document.getElementById('phoneInput').value = result.phone_number;
+          btn.textContent = 'Discovered ✔';
+        } else {
+          throw new Error("No phone number returned");
+        }
+      } catch (error) {
+        console.error('Discovery failed:', error);
+        alert('Discovery failed: ' + error.message);
+        document.getElementById('discoverBtn').textContent = 'Auto-Discover Failed';
+
+        document.getElementById('discoverBtn').disabled = true;
+      }
+    }
+
     async function startVerification() {
-      const isSimulator = document.getElementById('simulatorToggle').checked;
-      const phone = document.getElementById('phoneInput').value;
+      let phoneRaw = document.getElementById('phoneInput').value;
+      const phone = phoneRaw.replace(/[^\d+]/g, ''); // Convert "(650) 793..." to "+1650..." E.164 for API
       const btn = document.getElementById('verifyBtn');
 
       if (!phone) return alert("Please enter a phone number");
@@ -163,15 +203,7 @@
       document.getElementById('formState').style.display = 'none';
       document.getElementById('loadingState').style.display = 'block';
       requestAnimationFrame(() => { document.getElementById('bar').style.width = '50%'; });
-
-      if (isSimulator) {
-        // --- SIMULATOR STUB FLOW ---
-        await delay(1200);
-        step(2);
-        await delay(1200);
-        await finishFlowSuccess();
-      } else {
-        // --- REAL GLIDE FLOW ---
+      // --- REAL GLIDE FLOW ---
         try {
           const { PhoneAuthClient, USE_CASE } = window.GlideWebClientSDK;
           const glideClient = new PhoneAuthClient({
@@ -200,7 +232,6 @@
           document.getElementById('subStatus').style.color = '#f85149';
           document.getElementById('bar').style.background = '#f85149';
         }
-      }
     }
   </script>
 </body>

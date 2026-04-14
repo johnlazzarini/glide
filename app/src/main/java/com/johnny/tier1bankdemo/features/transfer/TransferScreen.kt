@@ -67,7 +67,7 @@ fun TransferScreen(
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
-            text = "Transfers over \$1,000 require identity verification.",
+            text = "Transfers over \$1,001 require identity verification.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

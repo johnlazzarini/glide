@@ -25,8 +25,8 @@ const isGlideStubbed = process.env.GLIDE_CLIENT_ID === 'STUB_CLIENT_ID';
 if (!isGlideStubbed) {
   try {
     glide = new GlideClient({
-      clientId: process.env.GLIDE_CLIENT_ID,
-      clientSecret: process.env.GLIDE_CLIENT_SECRET
+      clientId: process.env.GLIDE_CLIENT_ID.trim(),
+      clientSecret: process.env.GLIDE_CLIENT_SECRET.trim()
     });
     console.log('[Glide] Authenticated successfully via SDK.');
   } catch (e) {
@@ -56,53 +56,51 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ── Glide API Routes ──────────────────────────────────────────────────────────
 
 app.post('/api/phone-auth/prepare', async (req, res) => {
-  if (isGlideStubbed || !glide) {
-    return res.json({ session_id: 'mock_session_123', status: 'prepared' });
-  }
+  console.log('\n--- [Glide] POST /prepare ---');
+  console.log('Incoming Payload:', JSON.stringify(req.body, null, 2));
   try {
     const response = await glide.magicalAuth.prepare(req.body);
+    console.log('Success Response:', JSON.stringify(response, null, 2));
     res.json(response);
   } catch (error) {
+    console.error('ERROR in /prepare:', error.message);
     res.status(error.status || 500).json({ code: error.code, message: error.message });
   }
 });
 
 app.post('/api/phone-auth/report-invocation', async (req, res) => {
-  if (isGlideStubbed || !glide) {
-    return res.json({ received: true });
-  }
+  console.log('\n--- [Glide] POST /report-invocation ---');
+  console.log('Incoming Payload:', JSON.stringify(req.body, null, 2));
   try {
     const result = await glide.magicalAuth.reportInvocation(req.body);
+    console.log('Success Response:', JSON.stringify(result, null, 2));
     res.json(result);
   } catch (error) {
-    console.error('Report invocation failed:', error.message);
+    console.error('ERROR in /report-invocation:', error.message);
     res.json({ received: true });
   }
 });
 
 app.post('/api/phone-auth/process', async (req, res) => {
-  if (isGlideStubbed || !glide) {
-    // Return mocked success
-    return res.json({
-      verified: true,
-      sim_swap: { checked: true, risk_level: 'RISK_LEVEL_LOW', age_band: '30_DAYS' },
-      device_swap: { checked: true, risk_level: 'RISK_LEVEL_LOW' }
-    });
-  }
+  console.log('\n--- [Glide] POST /process ---');
+  console.log('Incoming Payload:', JSON.stringify(req.body, null, 2));
   try {
     const { credential, session, use_case } = req.body;
     let result;
     if (use_case === 'GetPhoneNumber') {
       result = await glide.magicalAuth.getPhoneNumber({ session, credential });
+      console.log('Success Response (GetPhoneNumber):', JSON.stringify(result, null, 2));
     } else {
       result = await glide.magicalAuth.verifyPhoneNumber({ session, credential });
+      console.log('Success Response (VerifyPhoneNumber):', JSON.stringify(result, null, 2));
     }
     
-    if (result.sim_swap?.checked) console.log('[Glide] SIM Swap Risk:', result.sim_swap.risk_level);
-    if (result.device_swap?.checked) console.log('[Glide] Device Swap Risk:', result.device_swap.risk_level);
+    if (result.sim_swap?.checked) console.log('SIM Swap Risk:', result.sim_swap.risk_level);
+    if (result.device_swap?.checked) console.log('Device Swap Risk:', result.device_swap.risk_level);
     
     res.json(result);
   } catch (error) {
+    console.error('ERROR in /process:', error.message);
     res.status(error.status || 500).json({ code: error.code, message: error.message });
   }
 });

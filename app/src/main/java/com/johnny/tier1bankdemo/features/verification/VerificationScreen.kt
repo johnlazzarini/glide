@@ -131,7 +131,17 @@ fun VerificationScreen(
                     if (state.verificationUrl.isNotBlank()) {
                         try {
                             val customTabsIntent = androidx.browser.customtabs.CustomTabsIntent.Builder().build()
-                            customTabsIntent.launchUrl(context, android.net.Uri.parse(state.verificationUrl))
+                            
+                            val telephonyManager = context.getSystemService(android.content.Context.TELEPHONY_SERVICE) as android.telephony.TelephonyManager
+                            val plmn = telephonyManager.networkOperator
+                            
+                            val uriBuilder = android.net.Uri.parse(state.verificationUrl).buildUpon()
+                            if (!plmn.isNullOrEmpty()) {
+                                uriBuilder.appendQueryParameter("plmn", plmn)
+                            }
+                            val finalUrl = uriBuilder.build()
+                            
+                            customTabsIntent.launchUrl(context, finalUrl)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
