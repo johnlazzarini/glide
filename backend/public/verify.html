@@ -89,15 +89,10 @@
     <div class="badge" id="sessionBadge">Session &hellip;</div>
     <div class="headline">Chase Security</div>
 
-    <!-- User Input Form -->
+    <!-- Initial Action State -->
     <div id="formState">
-      <div class="sub">Enter your carrier-connected phone number.</div>
-      <div class="input-group">
-        <label>Phone Number</label>
-        <button class="btn" type="button" id="discoverBtn" onclick="discoverPhone()" style="margin-bottom: 12px; background: #e1e4e8; color: #211e1e; font-weight: 600;">Auto-Discover from Network</button>
-        <input type="tel" id="phoneInput" placeholder="+1 555 123 4567" value="+1 (650) 793-0906" />
-      </div>
-      <button class="btn" id="verifyBtn" onclick="startVerification()">Verify Identity</button>
+      <div class="sub" style="margin-bottom: 32px; font-size: 1.1rem; color: #1f2937;">To continue, please confirm your identity via your mobile carrier.</div>
+      <button class="btn" id="verifyBtn" onclick="startVerification()" style="padding: 18px; font-size: 1.1rem; background: #0060d3; box-shadow: 0 4px 12px rgba(0,96,211,0.2);">Continue with Carrier</button>
     </div>
 
     <!-- Loading State -->
@@ -135,31 +130,34 @@
     const delay = ms => new Promise(r => setTimeout(r, ms));
 
     // Common deep-link finish flow
-    async function finishFlowSuccess() {
+    async function finishFlowSuccess(phoneNumber) {
       // Mark success on our local server wrapper
       fetch('/verify/' + ATTEMPT_ID + '/complete', { method: 'POST' }).catch(() => { });
 
       step(3);
       document.getElementById('bar').style.width = '100%';
-      document.getElementById('subStatus').textContent = 'Verification complete! Returning to app\u2026';
+      document.getElementById('subStatus').innerHTML = `We have authorized your device over the cellular connection with the carrier and corroborated your phone number, <b>${phoneNumber}</b>, to your account. Verification complete!`;
 
-      await delay(900);
+      await delay(4000);
       window.location.href = DEEP_LINK;
       setTimeout(() => { document.getElementById('fallback').style.display = 'block'; }, 2000);
     }
 
-    async function discoverPhone() {
-      try {
-        const btn = document.getElementById('discoverBtn');
-        btn.textContent = 'Discovering...';
-        btn.disabled = true;
+    async function startVerification() {
+      // Browsers require a user gesture (this click) to show the secure Glide popup.
+      document.getElementById('formState').style.display = 'none';
+      document.getElementById('loadingState').style.display = 'block';
+      
+      requestAnimationFrame(() => { document.getElementById('bar').style.width = '30%'; });
+      document.getElementById('subStatus').textContent = 'Authenticating device...';
 
+      try {
         const PLMN = params.get('plmn');
         if (!PLMN) {
           throw new Error("No PLMN was supplied via URL. Native Telephony extraction might have failed or phone is locked to WiFi-only.");
         }
 
-        const { PhoneAuthClient } = window.GlideWebClientSDK;
+        const { PhoneAuthClient, USE_CASE } = window.GlideWebClientSDK;
         const glideClient = new PhoneAuthClient({
           endpoints: {
             prepare: '/api/phone-auth/prepare',
@@ -168,8 +166,8 @@
           }
         });
 
-        // Experimental GetPhoneNumber hook passing nested PLMN object
-        const result = await glideClient.authenticate({
+        // 1. Discover Phone Number
+        const discoverResult = await glideClient.authenticate({
           use_case: 'GetPhoneNumber',
           plmn: {
             mcc: PLMN.substring(0, 3),
@@ -177,61 +175,22 @@
           }
         });
 
-        if (result.phone_number) {
-          document.getElementById('phoneInput').value = result.phone_number;
-          btn.textContent = 'Discovered ✔';
-        } else {
-          throw new Error("No phone number returned");
+        if (!discoverResult.phone_number) {
+          throw new Error("No phone number returned during discovery");
         }
+
+        const phone = discoverResult.phone_number;
+
+        step(2);
+        document.getElementById('bar').style.width = '70%';
+        document.getElementById('subStatus').textContent = 'Checking identity records...';
+
+        await finishFlowSuccess(phone);
       } catch (error) {
-        console.error('Discovery failed:', error);
-        alert('Discovery failed: ' + error.message);
-        document.getElementById('discoverBtn').textContent = 'Auto-Discover Failed';
-
-        document.getElementById('discoverBtn').disabled = true;
+        document.getElementById('subStatus').textContent = '❌ ' + (error.message || 'Error occurred during Glide auth');
+        document.getElementById('subStatus').style.color = '#f85149';
+        document.getElementById('bar').style.background = '#f85149';
       }
-    }
-
-    async function startVerification() {
-      let phoneRaw = document.getElementById('phoneInput').value;
-      const phone = phoneRaw.replace(/[^\d+]/g, ''); // Convert "(650) 793..." to "+1650..." E.164 for API
-      const btn = document.getElementById('verifyBtn');
-
-      if (!phone) return alert("Please enter a phone number");
-
-      // Swap UI
-      document.getElementById('formState').style.display = 'none';
-      document.getElementById('loadingState').style.display = 'block';
-      requestAnimationFrame(() => { document.getElementById('bar').style.width = '50%'; });
-      // --- REAL GLIDE FLOW ---
-        try {
-          const { PhoneAuthClient, USE_CASE } = window.GlideWebClientSDK;
-          const glideClient = new PhoneAuthClient({
-            endpoints: {
-              prepare: '/api/phone-auth/prepare',
-              reportInvocation: '/api/phone-auth/report-invocation',
-              process: '/api/phone-auth/process'
-            }
-          });
-
-          step(2);
-          document.getElementById('bar').style.width = '80%';
-
-          const result = await glideClient.authenticate({
-            use_case: USE_CASE.VERIFY_PHONE_NUMBER,
-            phone_number: phone
-          });
-
-          if (result.verified) {
-            await finishFlowSuccess();
-          } else {
-            throw new Error("Glide Verification Failed");
-          }
-        } catch (error) {
-          document.getElementById('subStatus').textContent = '❌ ' + (error.message || 'Error occurred during Glide auth');
-          document.getElementById('subStatus').style.color = '#f85149';
-          document.getElementById('bar').style.background = '#f85149';
-        }
     }
   </script>
 </body>

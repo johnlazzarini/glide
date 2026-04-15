@@ -22,7 +22,10 @@ The Node environment bridges the mobile browser and Glide's carrier-grade checki
    npm install
    ```
 2. **Configure Verification Credentials:**
-   Open `backend/.env`. Insert your designated Glide `CLIENT_ID` and `CLIENT_SECRET` provided to you. 
+   Open `backend/.env`. Insert your designated Glide `CLIENT_ID`, `CLIENT_SECRET`, and your personal `NGROK_AUTHTOKEN` (required for HTTPS).
+   
+   *Note: ngrok is required because modern browsers (Chrome/Android) require a **Secure Context (HTTPS)** to access the Digital Credentials API used by Glide identity verification. Using ngrok automatically creates a secure tunnel for your local environment.*
+   
    *(Note: if left as `STUB`, the server will seamlessly default to a mocked **Simulator Mode** for offline UI checking).*
 3. Run the deployment environment:
    ```bash

@@ -5,6 +5,7 @@ const express = require('express');
 const crypto  = require('crypto');
 const os      = require('os');
 const path    = require('path');
+const ngrok   = require('@ngrok/ngrok');
 const { GlideClient } = require('@glideidentity/glide-be-sdk-node');
 
 // ── Config ────────────────────────────────────────────────────────────────────
@@ -26,9 +27,10 @@ if (!isGlideStubbed) {
   try {
     glide = new GlideClient({
       clientId: process.env.GLIDE_CLIENT_ID.trim(),
-      clientSecret: process.env.GLIDE_CLIENT_SECRET.trim()
+      clientSecret: process.env.GLIDE_CLIENT_SECRET.trim(),
+      baseUrl: 'https://api-stg.glideidentity.app'
     });
-    console.log('[Glide] Authenticated successfully via SDK.');
+    console.log('[Glide] SDK initialized → https://api-stg.glideidentity.app');
   } catch (e) {
     console.warn('[Glide] initialization failed, falling back to STUB behavior.', e.message);
   }
@@ -155,7 +157,8 @@ app.post('/verification/start', (req, res) => {
     }
   }, AUTO_SUCCESS_MS);
 
-  const verificationUrl = `http://${HOST}:${PORT}/verify.html?attemptId=${attemptId}`;
+  const base = global.ngrokUrl || `http://${HOST}:${PORT}`;
+  const verificationUrl = `${base}/verify.html?attemptId=${attemptId}`;
   console.log(`[start] ${attemptId}  useCase=${useCase}`);
   console.log(`        url=${verificationUrl}`);
 
@@ -216,13 +219,32 @@ app.post('/verify/:id/complete', (req, res) => {
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log('\n┌─────────────────────────────────────────────────┐');
-  console.log('│       Tier1 Bank Verification Server            │');
-  console.log('├─────────────────────────────────────────────────┤');
-  console.log(`│  Local:   http://localhost:${PORT}                  │`);
-  console.log(`│  Network: http://${HOST}:${PORT}                 │`);
-  console.log('├─────────────────────────────────────────────────┤');
-  console.log(`│  Android base URL → http://${HOST}:${PORT}      │`);
-  console.log('└─────────────────────────────────────────────────┘\n');
-});
+async function boot() {
+  await new Promise(resolve => app.listen(PORT, '0.0.0.0', resolve));
+
+  // Start ngrok tunnel so verify.html is served over HTTPS (required for Digital Credentials API)
+  try {
+    const listener = await ngrok.forward({
+      addr: PORT,
+      authtoken: process.env.NGROK_AUTHTOKEN
+    });
+    global.ngrokUrl = listener.url();
+    console.log('\n┌─────────────────────────────────────────────────┐');
+    console.log('│       Tier1 Bank Verification Server            │');
+    console.log('├─────────────────────────────────────────────────┤');
+    console.log(`│  Local:   http://localhost:${PORT}                  │`);
+    console.log(`│  Network: http://${HOST}:${PORT}                 │`);
+    console.log('├─────────────────────────────────────────────────┤');
+    console.log(`│  ngrok:   ${global.ngrokUrl}  │`);
+    console.log('├─────────────────────────────────────────────────┤');
+    console.log(`│  Android base URL → http://${HOST}:${PORT}      │`);
+    console.log('└─────────────────────────────────────────────────┘\n');
+  } catch (e) {
+    console.warn('[ngrok] Tunnel failed — falling back to local HTTP. Digital Credentials API may not work.');
+    console.warn('[ngrok] Error:', e.message);
+    console.warn('[ngrok] Make sure NGROK_AUTHTOKEN is set in .env');
+    global.ngrokUrl = null;
+  }
+}
+
+boot();
