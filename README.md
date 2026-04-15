@@ -48,11 +48,4 @@ The Android app requires a physical device connected to the **same Wi-Fi network
 ### Going Live (Cellular Network Validation)
 To perform a true, genuine carrier-grade verification loop:
 1. Ensure your actual Glide `CLIENT_ID` and `CLIENT_SECRET` are pasted into `.env`.
-2. Disable Wi-Fi on your physical Android device. You must be connected entirely over **Cellular Data (5G/LTE)** for the SIM packet signatures to properly trace.
-3. Trigger a fake money transfer inside the app. Un-check the `Simulator Mode` box inside the verifying browser tab, input the device's phone number, and hit "Verify".
-
-### Developer Simulator Mode (Sandbox)
-If credentials are not yet provisioned, you can still test UX flow and intent loops:
-1. Leave the `.env` values set to `STUB`.
-2. Inside the browser verification tab, ensure `Simulator Mode` stays toggled **On**.
-3. The server will mock connection latency and instantly authorize the Deep-Link trajectory back into the Kotlin `tier1bank://` intent loop!
+2. Trigger a log-in, password reset, or fake money transfer inside the app.
