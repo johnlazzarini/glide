@@ -38,7 +38,8 @@ The Node environment bridges the mobile browser and Glide's carrier-grade checki
 The Android app requires a physical device connected to the **same Wi-Fi network** as the development server.
 
 1. Open the root folder (`glide_tech_assessment`) in **Android Studio**.
-2. **Crucial Local Device Config:** Open `app/src/main/java/com/johnny/tier1bankdemo/data/verification/VerificationApiService.kt` and change the `BASE_URL` constant. It must point to your development laptop's local IPv4 network address (e.g., `http://192.168.1.X:3000`).
+2. **Crucial Local Device Config:** All configuration (Glide credentials, ngrok tokens, AND backend URL) is managed in `backend/.env`. Ensure `ANDROID_BACKEND_URL` points to your development laptop's local IPv4 network address (e.g., `http://192.168.1.X:3000`).
+   *Note: Rebuild the app or perform a Gradle Sync after changing the URL in `.env` for changes to take effect.*
 3. Build and run the project onto your physical Android device via USB/Wireless ADB.
 
 ---

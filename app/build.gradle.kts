@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -8,12 +10,23 @@ android {
     namespace = "com.johnny.tier1bankdemo"
     compileSdk = 35
 
+    // Load environment variables from backend/.env
+    val envFile = file("../backend/.env")
+    val properties = Properties()
+    if (envFile.exists()) {
+        properties.load(envFile.inputStream())
+    }
+
     defaultConfig {
         applicationId = "com.johnny.tier1bankdemo"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        // Inject the ANDROID_BACKEND_URL from .env or fallback
+        val backendUrl = properties.getProperty("ANDROID_BACKEND_URL") ?: "http://localhost:3000"
+        buildConfigField("String", "ANDROID_BACKEND_URL", "\"$backendUrl\"")
     }
 
     compileOptions {
@@ -27,6 +40,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

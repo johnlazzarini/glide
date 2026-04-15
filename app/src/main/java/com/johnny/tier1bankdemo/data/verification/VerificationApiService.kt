@@ -32,7 +32,7 @@ interface VerificationApiService {
 
     companion object {
         // Pointing to the local laptop's IP address so it works untethered over Wi-Fi
-        private const val BASE_URL = "http://192.168.1.65:3000"
+        private val BASE_URL = BuildConfig.ANDROID_BACKEND_URL
 
         fun create(): VerificationApiService {
             return Retrofit.Builder()
