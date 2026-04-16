@@ -8,6 +8,17 @@ const path    = require('path');
 const ngrok   = require('@ngrok/ngrok');
 const { GlideClient } = require('@glideidentity/glide-be-sdk-node');
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Mask sensitive credentials in logs to reduce noise */
+function redact(obj) {
+  if (!obj) return obj;
+  const clone = { ...obj };
+  if (clone.credential) clone.credential = '[REDACTED]';
+  return clone;
+}
+
+
 // ── Config ────────────────────────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 3000;
@@ -59,10 +70,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/phone-auth/prepare', async (req, res) => {
   console.log('\n--- [Glide] POST /prepare ---');
-  console.log('Incoming Payload:', JSON.stringify(req.body, null, 2));
+  console.log('Incoming Payload:', JSON.stringify(redact(req.body), null, 2));
   try {
     const response = await glide.magicalAuth.prepare(req.body);
-    console.log('Success Response:', JSON.stringify(response, null, 2));
+    console.log('Success Response:', JSON.stringify(redact(response), null, 2));
     res.json(response);
   } catch (error) {
     console.error('ERROR in /prepare:', error.message);
@@ -72,10 +83,10 @@ app.post('/api/phone-auth/prepare', async (req, res) => {
 
 app.post('/api/phone-auth/report-invocation', async (req, res) => {
   console.log('\n--- [Glide] POST /report-invocation ---');
-  console.log('Incoming Payload:', JSON.stringify(req.body, null, 2));
+  console.log('Incoming Payload:', JSON.stringify(redact(req.body), null, 2));
   try {
     const result = await glide.magicalAuth.reportInvocation(req.body);
-    console.log('Success Response:', JSON.stringify(result, null, 2));
+    console.log('Success Response:', JSON.stringify(redact(result), null, 2));
     res.json(result);
   } catch (error) {
     console.error('ERROR in /report-invocation:', error.message);
@@ -85,16 +96,16 @@ app.post('/api/phone-auth/report-invocation', async (req, res) => {
 
 app.post('/api/phone-auth/process', async (req, res) => {
   console.log('\n--- [Glide] POST /process ---');
-  console.log('Incoming Payload:', JSON.stringify(req.body, null, 2));
+  console.log('Incoming Payload:', JSON.stringify(redact(req.body), null, 2));
   try {
     const { credential, session, use_case } = req.body;
     let result;
     if (use_case === 'GetPhoneNumber') {
       result = await glide.magicalAuth.getPhoneNumber({ session, credential });
-      console.log('Success Response (GetPhoneNumber):', JSON.stringify(result, null, 2));
+      console.log('Success Response (GetPhoneNumber):', JSON.stringify(redact(result), null, 2));
     } else {
       result = await glide.magicalAuth.verifyPhoneNumber({ session, credential });
-      console.log('Success Response (VerifyPhoneNumber):', JSON.stringify(result, null, 2));
+      console.log('Success Response (VerifyPhoneNumber):', JSON.stringify(redact(result), null, 2));
     }
     
     // ── Enhanced Fraud Signal Logging ─────────────────────────────────────────
