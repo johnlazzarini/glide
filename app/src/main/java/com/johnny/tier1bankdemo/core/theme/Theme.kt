@@ -11,10 +11,11 @@ private val LightColors = lightColorScheme(
     primary = Color(0xFF117ACA),          // Chase Blue
     onPrimary = Color(0xFFFFFFFF),        // White text on blue buttons
     primaryContainer = Color(0xFFE6F0F9), // Light blue tint
-    background = Color(0xFFFFFFFF),       // Pure White background
-    surface = Color(0xFFF4F5F7),          // Soft gray surface
-    onBackground = Color(0xFF211E1E),     // Chase Dark Charcoal text
+    background = Color(0xFFFFFFFF),       // Strictly White background
+    surface = Color(0xFFFFFFFF),          // Strictly White surface
+    onBackground = Color(0xFF211E1E),     // Chase Bank Black
     onSurface = Color(0xFF211E1E),
+    onSurfaceVariant = Color(0xFF5F6368), // Mid-grey for subtext
     error = Color(0xFFD92D20)             // Error Red
 )
 
@@ -22,6 +23,14 @@ private val LightColors = lightColorScheme(
 fun Tier1BankTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = LightColors,
-        content = content
+        content = {
+            // Ensure a safe, white background for the entire application
+            androidx.compose.material3.Surface(
+                modifier = androidx.compose.ui.Modifier.fillMaxSize(),
+                color = androidx.compose.material3.MaterialTheme.colorScheme.background
+            ) {
+                content()
+            }
+        }
     )
 }

@@ -9,8 +9,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -70,24 +72,37 @@ fun DashboardScreen(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Text(
-                            text = uiState.accountName,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = uiState.accountNumber,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = "Available Balance",
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                        Text(
-                            text = uiState.balance,
-                            style = MaterialTheme.typography.displaySmall
+                    Row(
+                        modifier = Modifier.padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = uiState.accountName,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = uiState.accountNumber,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = "Available Balance",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            Text(
+                                text = uiState.balance,
+                                style = MaterialTheme.typography.displaySmall,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Filled.AccountBalance,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                            modifier = Modifier.size(64.dp)
                         )
                     }
                 }
@@ -104,6 +119,8 @@ fun DashboardScreen(
                         .fillMaxWidth()
                         .height(52.dp)
                 ) {
+                    Icon(Icons.Filled.SwapHoriz, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
                     Text("Transfer Funds")
                 }
             }
