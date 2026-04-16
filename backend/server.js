@@ -109,31 +109,31 @@ app.post('/api/phone-auth/process', async (req, res) => {
     }
     
     // ── Enhanced Fraud Signal Logging ─────────────────────────────────────────
-    if (result.sim_swap?.checked || result.device_swap?.checked) {
-      console.log('\n┌──────────────── FRAUD SIGNAL REPORT ────────────────┐');
-      
-      if (result.sim_swap?.checked) {
-        console.log('│ [SIM Swap]');
-        console.log(`│   Risk Level: ${result.sim_swap.risk_level}`);
-        console.log(`│   Age Band:   ${result.sim_swap.age_band}`);
-        console.log(`│   Carrier:    ${result.sim_swap.carrier_name}`);
-      } else {
-        console.log('│ [SIM Swap] Not checked');
-      }
-
-      console.log('├─────────────────────────────────────────────────────┤');
-
-      if (result.device_swap?.checked) {
-        console.log('│ [Device Swap]');
-        console.log(`│   Risk Level: ${result.device_swap.risk_level}`);
-        console.log(`│   Age Band:   ${result.device_swap.age_band}`);
-        console.log(`│   Carrier:    ${result.device_swap.carrier_name}`);
-      } else {
-        console.log('│ [Device Swap] Not checked');
-      }
-      
-      console.log('└─────────────────────────────────────────────────────┘\n');
+    // Always show the box so we can see the feature is active, even if the carrier 
+    // doesn't provide the signals in the current environment (e.g. Staging).
+    console.log('\n┌──────────────── FRAUD SIGNAL REPORT ────────────────┐');
+    
+    if (result.sim_swap?.checked) {
+      console.log('│ [SIM Swap]');
+      console.log(`│   Risk Level: ${result.sim_swap.risk_level}`);
+      console.log(`│   Age Band:   ${result.sim_swap.age_band}`);
+      console.log(`│   Carrier:    ${result.sim_swap.carrier_name}`);
+    } else {
+      console.log('│ [SIM Swap] Signal data not provided by carrier');
     }
+
+    console.log('├─────────────────────────────────────────────────────┤');
+
+    if (result.device_swap?.checked) {
+      console.log('│ [Device Swap]');
+      console.log(`│   Risk Level: ${result.device_swap.risk_level}`);
+      console.log(`│   Age Band:   ${result.device_swap.age_band}`);
+      console.log(`│   Carrier:    ${result.device_swap.carrier_name}`);
+    } else {
+      console.log('│ [Device Swap] Signal data not provided by carrier');
+    }
+    
+    console.log('└─────────────────────────────────────────────────────┘\n');
     
     res.json(result);
   } catch (error) {
