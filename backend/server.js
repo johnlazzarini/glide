@@ -158,7 +158,7 @@ app.post('/verification/start', (req, res) => {
   }, AUTO_SUCCESS_MS);
 
   const base = global.ngrokUrl || `http://${HOST}:${PORT}`;
-  const verificationUrl = `${base}/verify.html?attemptId=${attemptId}`;
+  const verificationUrl = `${base}/verify.html?attemptId=${attemptId}&useCase=${useCase}`;
   console.log(`[start] ${attemptId}  useCase=${useCase}`);
   console.log(`        url=${verificationUrl}`);
 

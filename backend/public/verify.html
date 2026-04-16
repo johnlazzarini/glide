@@ -91,8 +91,8 @@
 
     <!-- Initial Action State -->
     <div id="formState">
-      <div class="sub" style="margin-bottom: 32px; font-size: 1.1rem; color: #1f2937;">To continue, please confirm your identity via your mobile carrier.</div>
-      <button class="btn" id="verifyBtn" onclick="startVerification()" style="padding: 18px; font-size: 1.1rem; background: #0060d3; box-shadow: 0 4px 12px rgba(0,96,211,0.2);">Continue with Carrier</button>
+      <div class="sub" id="mainSub" style="margin-bottom: 32px; font-size: 1.1rem; color: #1f2937;">To continue, please confirm your identity via your mobile carrier.</div>
+      <button class="btn" id="verifyBtn" onclick="startVerification()" style="padding: 18px; font-size: 1.1rem; background: #0060d3; box-shadow: 0 4px 12px rgba(0,96,211,0.2);">Verify through Carrier</button>
     </div>
 
     <!-- Loading State -->
@@ -119,11 +119,23 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const ATTEMPT_ID = params.get('attemptId');
+    const USE_CASE_PARAM = params.get('useCase') || 'default';
     const DEEP_LINK = `tier1bank://verify?attemptId=${encodeURIComponent(ATTEMPT_ID)}`;
 
     // Populate the UI
     document.getElementById('sessionBadge').innerHTML = `Session ${ATTEMPT_ID.slice(0, 8)}&hellip;`;
     document.getElementById('fallbackLink').href = DEEP_LINK;
+
+    // Set contextual message
+    const msgMap = {
+      'login_2fa': "It's been 14 days since your last verified login.",
+      'login': "It's been 14 days since your last verified login.",
+      'transfer_auth': "Verification required for amounts greater than $1,000.",
+      'account_recovery': "Please allow Chase to verify your device to continue password reset."
+    };
+    if (msgMap[USE_CASE_PARAM]) {
+      document.getElementById('mainSub').textContent = msgMap[USE_CASE_PARAM];
+    }
 
     const step = n => [1, 2, 3].forEach(i =>
       document.getElementById('s' + i).className = i < n ? 'done' : i === n ? 'active' : '');
