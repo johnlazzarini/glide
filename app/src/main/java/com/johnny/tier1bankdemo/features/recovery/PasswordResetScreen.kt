@@ -1,17 +1,18 @@
 package com.johnny.tier1bankdemo.features.recovery
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.background
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -53,7 +54,7 @@ fun PasswordResetScreen(
                 text = "Set New Password",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -65,49 +66,50 @@ fun PasswordResetScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-        Text(
-            text = "Reset Password",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Text(
-            text = "Your identity has been verified. Choose a new password.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(Modifier.height(40.dp))
-
-        OutlinedTextField(
-            value = uiState.newPassword,
-            onValueChange = { viewModel.onAction(PasswordResetAction.OnNewPasswordChanged(it)) },
-            label = { Text("New Password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = uiState.confirmPassword,
-            onValueChange = { viewModel.onAction(PasswordResetAction.OnConfirmPasswordChanged(it)) },
-            label = { Text("Confirm Password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        uiState.errorMessage?.let { error ->
-            Spacer(Modifier.height(8.dp))
             Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
+                text = "Reset Password",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
             )
-        }
+            Text(
+                text = "Your identity has been verified. Choose a new password.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
 
-        Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(40.dp))
+
+            OutlinedTextField(
+                value = uiState.newPassword,
+                onValueChange = { viewModel.onAction(PasswordResetAction.OnNewPasswordChanged(it)) },
+                label = { Text("New Password") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = uiState.confirmPassword,
+                onValueChange = { viewModel.onAction(PasswordResetAction.OnConfirmPasswordChanged(it)) },
+                label = { Text("Confirm Password") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            uiState.errorMessage?.let { error ->
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            Spacer(Modifier.height(28.dp))
 
             Button(
                 onClick = { viewModel.onAction(PasswordResetAction.OnSubmitClicked) },
