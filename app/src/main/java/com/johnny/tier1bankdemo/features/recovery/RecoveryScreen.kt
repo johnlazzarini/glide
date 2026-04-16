@@ -1,5 +1,6 @@
 package com.johnny.tier1bankdemo.features.recovery
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -9,6 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,12 +51,18 @@ fun RecoveryScreen(
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
+            Image(
+                painter = painterResource(id = R.drawable.chase_logo),
+                contentDescription = null,
+                modifier = Modifier.padding(start = 4.dp).height(20.dp),
+                colorFilter = ColorFilter.tint(Color.White)
+            )
             Text(
                 text = "Account Recovery",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 12.dp)
             )
         }
 

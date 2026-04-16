@@ -1,5 +1,6 @@
 package com.johnny.tier1bankdemo.features.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -10,6 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -19,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.johnny.tier1bankdemo.R
 import com.johnny.tier1bankdemo.core.navigation.AppRoutes
 import com.johnny.tier1bankdemo.features.verification.VerificationLauncher
 
@@ -46,12 +51,11 @@ fun LoginScreen(
                 .padding(horizontal = 16.dp, vertical = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "CHASE",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
+            Image(
+                painter = painterResource(id = R.drawable.chase_logo),
+                contentDescription = "Chase Logo",
+                modifier = Modifier.height(24.dp),
+                colorFilter = ColorFilter.tint(Color.White)
             )
         }
 

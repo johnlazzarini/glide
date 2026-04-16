@@ -1,22 +1,26 @@
 package com.johnny.tier1bankdemo.features.dashboard
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.johnny.tier1bankdemo.R
 import com.johnny.tier1bankdemo.core.navigation.AppRoutes
 
 @Composable
@@ -46,12 +50,11 @@ fun DashboardScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "CHASE",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                letterSpacing = 1.sp
+            Image(
+                painter = painterResource(id = R.drawable.chase_logo),
+                contentDescription = "Chase Logo",
+                modifier = Modifier.height(24.dp),
+                colorFilter = ColorFilter.tint(Color.White)
             )
             TextButton(onClick = { viewModel.onAction(DashboardAction.OnLogoutClicked) }) {
                 Text("Sign Out", color = MaterialTheme.colorScheme.onPrimary)
